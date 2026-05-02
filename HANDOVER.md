@@ -41,14 +41,32 @@ You do **not** receive:
 
 **Run the migrations**
 
-Open the Neon SQL editor and run each file in order:
+The fastest path is the included migration runner (reads `ADMIN_DATABASE_URL` from `.env.local`):
+
+```bash
+node db/migrate.mjs
+```
+
+Or run each file manually in the Neon SQL editor in order:
 
 ```
 db/migrations/0001_schema.sql   — creates all tables and enums
 db/migrations/0002_rls.sql      — enables RLS and creates all policies
-db/migrations/0003_seed.sql     — inserts entities, documents, transactions, assets, obligations
-db/migrations/0004_demo_users.sql — creates the three demo users with bcrypt-hashed passwords
+db/migrations/0003_seed.sql     — inserts entities, transactions, assets, obligations
+db/migrations/0004_demo_users.sql — creates the three demo users + documents
+db/migrations/0005_app_role.sql — creates enclave_app role (no BYPASSRLS, required for RLS to enforce)
 ```
+
+**Why two database URLs?**
+
+The Neon owner connection (`neondb_owner`) has `BYPASSRLS = true`, which means RLS policies silently do nothing if you use it for app queries. Migration `0005_app_role.sql` creates a limited role (`enclave_app`) that does not bypass RLS. The app's `DATABASE_URL` must use `enclave_app`; migrations use the owner connection.
+
+```
+ADMIN_DATABASE_URL = postgresql://neondb_owner:...   ← migrations only
+DATABASE_URL       = postgresql://enclave_app:...    ← Next.js app at runtime
+```
+
+After running migrations, build the `enclave_app` URL by swapping the username and password in your owner connection string. The password is set in `0005_app_role.sql` (rotate it before launch).
 
 **Verify**
 
@@ -80,13 +98,18 @@ Or delete the demo users entirely and add your real users instead.
 Create a `.env.local` file at the repo root (never commit this file):
 
 ```
-DATABASE_URL=postgresql://...          # from Neon Connection Details
+# App connection — enclave_app role (no BYPASSRLS). Used by Next.js at runtime.
+DATABASE_URL=postgresql://enclave_app:<password>@ep-xxx.neon.tech/neondb?sslmode=require
+
+# Admin connection — owner role (has BYPASSRLS). Used by db/migrate.mjs only.
+ADMIN_DATABASE_URL=postgresql://neondb_owner:<password>@ep-xxx.neon.tech/neondb?sslmode=require
+
 AUTH_SECRET=<output of: openssl rand -base64 32>
 NEXTAUTH_URL=https://your-domain.com   # your Vercel deployment URL
 BLOB_READ_WRITE_TOKEN=vercel_blob_rw_... # from Vercel Storage dashboard
 ```
 
-Add the same four variables to your Vercel project (Settings → Environment Variables).
+Add all five variables to your Vercel project (Settings → Environment Variables). `ADMIN_DATABASE_URL` is only needed locally for running migrations — you do not need to add it to Vercel.
 
 ---
 
