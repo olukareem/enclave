@@ -10,17 +10,18 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
   title: {
-    default: "Enclave — Multi-tenant client portal infrastructure",
+    default: "Enclave — One portal for every entity you manage",
     template: "%s — Enclave",
   },
   description:
-    "Multi-tenant B2B client portal starter: Postgres RLS, role-based access, Vercel Blob document storage. Built on Next.js 14, Neon, and Auth.js.",
+    "A private workspace for advisors, family offices, and accountants managing multiple clients. Documents, transactions, assets, and obligations kept distinct per entity.",
   icons: {
     icon: "/brand/mark.svg",
   },
   openGraph: {
-    title: "Enclave — Multi-tenant client portal infrastructure",
-    description: "Ship a multi-tenant client portal in days, not months.",
+    title: "Enclave — One portal for every entity you manage",
+    description:
+      "Private client workspaces for advisors, family offices, and accountants managing multiple entities.",
     type: "website",
   },
 };

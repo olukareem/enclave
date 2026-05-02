@@ -14,8 +14,7 @@ import { useAuth } from "@/lib/auth";
 import { initials } from "@/lib/utils";
 import type { Role } from "@/lib/types";
 
-// Demo accounts seeded by db/migrations/0004_demo_users.sql.
-// Buyers should remove or rotate these before going to production.
+// Shared password for the three preview accounts on this hosted demo.
 const DEMO_PASSWORD = "enclave-demo";
 
 interface DemoAccount {
@@ -75,7 +74,7 @@ export default function LoginPage() {
     setSigningIn(null);
     if (signInError) {
       setError(
-        `Sign-in failed: ${signInError}. Have you run all four db/migrations/ files? See README.`,
+        `Sign-in failed: ${signInError}`,
       );
       return;
     }
@@ -159,8 +158,8 @@ export default function LoginPage() {
             ) : null}
 
             <div className="rounded-md border border-dashed bg-muted/40 p-3 text-xs text-muted-foreground">
-              <span className="font-medium text-foreground">Demo credentials are public.</span>{" "}
-              Rotate or delete the seeded users before deploying to real customers.
+              <span className="font-medium text-foreground">First time here?</span>{" "}
+              Pick a preview account on the right to explore Enclave instantly.
             </div>
           </CardContent>
         </Card>
@@ -169,11 +168,12 @@ export default function LoginPage() {
           <CardContent className="space-y-4 p-8">
             <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
               <ShieldCheck className="h-3.5 w-3.5" />
-              Demo accounts
+              Preview accounts
             </div>
             <p className="text-sm text-muted-foreground">
-              Each account has different entity memberships and roles. Switching between them is the
-              clearest way to see RLS at work.
+              Try Enclave from three different perspectives. Each account belongs to a
+              different set of entities with a different role &mdash; admin, advisor, or
+              viewer.
             </p>
 
             <Separator />
@@ -215,12 +215,11 @@ export default function LoginPage() {
             </div>
 
             <p className="text-[11px] leading-relaxed text-muted-foreground">
-              All three users share the password{" "}
+              Preview accounts share the password{" "}
               <code className="rounded bg-muted px-1 py-0.5 font-mono text-[10px]">
                 {DEMO_PASSWORD}
               </code>
-              . Tenant isolation is enforced by Postgres RLS — switching accounts changes what the
-              database returns, not what the client filters.
+              . Each one only sees the entities they belong to.
             </p>
           </CardContent>
         </Card>

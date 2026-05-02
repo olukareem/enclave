@@ -31,7 +31,7 @@ export default function AssetsPage() {
         {canWrite ? (
           <Button
             onClick={() =>
-              toast({ title: "Add asset", description: "Form not wired in this demo." })
+              toast({ title: "Add asset", description: "Asset entry coming soon." })
             }
           >
             <Plus className="h-4 w-4" />

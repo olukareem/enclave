@@ -51,7 +51,7 @@ export function Sidebar() {
       <nav className="flex-1 overflow-y-auto px-2 py-3">
         <SidebarSection label="Workspace" items={NAV} pathname={pathname} />
         <Separator className="my-3 bg-white/5" />
-        <SidebarSection label="Architecture" items={ARCHITECTURE} pathname={pathname} />
+        <SidebarSection label="Under the hood" items={ARCHITECTURE} pathname={pathname} />
       </nav>
 
       <div className="border-t border-white/5 p-3">

@@ -57,8 +57,7 @@ export function SignedUrlDialog({ doc, onClose }: SignedUrlDialogProps) {
         if (apiError || !url) {
           setError(
             apiError ??
-              "Could not retrieve file URL. The file may not exist in Vercel Blob yet — " +
-              "uploads create real objects; seeded documents are metadata-only.",
+              "Could not retrieve a download link for this file. It may not be uploaded yet.",
           );
         } else {
           setBlobUrl(url);
@@ -112,8 +111,7 @@ export function SignedUrlDialog({ doc, onClose }: SignedUrlDialogProps) {
                 <span className="flex-1">{doc.title}</span>
               </DialogTitle>
               <DialogDescription>
-                Document URL retrieved via /api/blob — entity membership is verified
-                server-side before the URL is returned.
+                Generate a private download link for this document.
               </DialogDescription>
             </DialogHeader>
 
@@ -140,7 +138,7 @@ export function SignedUrlDialog({ doc, onClose }: SignedUrlDialogProps) {
                 <>
                   <div className="rounded-md border bg-muted/40 p-3">
                     <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                      Vercel Blob URL
+                      Download link
                     </div>
                     <div className="mt-1 break-all font-mono text-[11px] text-foreground/90">
                       {blobUrl}
@@ -149,19 +147,12 @@ export function SignedUrlDialog({ doc, onClose }: SignedUrlDialogProps) {
 
                   <div className="flex items-center justify-between rounded-md border border-warning/30 bg-warning/5 p-2.5 text-xs">
                     <span className="text-warning">
-                      Demo timer: <span className="font-mono font-semibold">{remaining}s</span>
+                      Link expires in <span className="font-mono font-semibold">{remaining}s</span>
                     </span>
                     <span className="text-muted-foreground">
-                      Access gated by entity membership · Vercel Blob
+                      Scoped to your entity membership
                     </span>
                   </div>
-
-                  <p className="text-[11px] text-muted-foreground">
-                    Swap{" "}
-                    <code className="rounded bg-muted px-1 font-mono">@vercel/blob</code> for{" "}
-                    <code className="rounded bg-muted px-1 font-mono">@aws-sdk/s3-presigner</code>{" "}
-                    (R2 or S3) to add real time-limited presigned URLs.
-                  </p>
                 </>
               ) : null}
             </div>

@@ -97,7 +97,7 @@ export default function ObligationsPage() {
         </div>
 
         {canWrite ? (
-          <Button onClick={() => toast({ title: "Add obligation", description: "Form not wired in this demo." })}>
+          <Button onClick={() => toast({ title: "Add obligation", description: "Obligation entry coming soon." })}>
             <Plus className="h-4 w-4" />
             Add
           </Button>

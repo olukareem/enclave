@@ -153,7 +153,7 @@ export default function TransactionsPage() {
               onClick={() =>
                 toast({
                   title: "Add transaction",
-                  description: "Form not wired in this demo. Real implementation calls db.insert().",
+                  description: "Transaction entry coming soon.",
                 })
               }
             >

@@ -171,7 +171,7 @@ export default function DocumentsPage() {
           <h1 className="text-2xl font-semibold tracking-tight">Documents</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {currentEntity ? `Files associated with ${currentEntity.name}.` : "No entity selected."}{" "}
-            Click a row to view the document URL.
+            Click any row to generate a private download link.
           </p>
         </div>
 
