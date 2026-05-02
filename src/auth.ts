@@ -24,11 +24,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
     Credentials({
       // `authorize` runs on the server — safe to query the database directly.
+      // Uses ADMIN_DATABASE_URL because the user isn't authenticated yet, so
+      // RLS would block the lookup-by-email. The owner role bypasses RLS,
+      // which is correct here: auth IS the privileged step that establishes
+      // who the user is. Every subsequent query goes through DATABASE_URL
+      // (enclave_app, RLS-enforcing).
       async authorize(credentials) {
         const { email, password } = credentials as { email: string; password: string };
         if (!email || !password) return null;
 
-        const sql = neon(process.env.DATABASE_URL!);
+        const adminUrl = process.env.ADMIN_DATABASE_URL ?? process.env.DATABASE_URL!;
+        const sql = neon(adminUrl);
         const rows = await sql`
           SELECT id, email, full_name, password_hash
           FROM public.users
