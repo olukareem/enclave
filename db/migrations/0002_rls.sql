@@ -3,7 +3,7 @@
 --
 -- RLS enforced by setting app.current_user_id before each query via the API layer.
 -- The API layer runs: SET LOCAL app.current_user_id = '<uuid>' inside each transaction.
--- Policies read that setting via current_setting('app.current_user_id', true)::uuid.
+-- Policies read that setting via nullif(current_setting('app.current_user_id', true), '')::uuid.
 --
 -- Pattern: every domain row has an `entity_id`. A user can SELECT a row only
 -- when they have a `user_entity` membership for that entity. Writes
@@ -16,7 +16,7 @@ alter table public.users enable row level security;
 create policy "users_self"
   on public.users
   for select
-  using (id = current_setting('app.current_user_id', true)::uuid);
+  using (id = nullif(current_setting('app.current_user_id', true), '')::uuid);
 
 -- ── entities ─────────────────────────────────────────────────────────────
 
@@ -28,7 +28,7 @@ create policy "entities_member_visible"
   using (
     id in (
       select entity_id from public.user_entity
-      where user_id = current_setting('app.current_user_id', true)::uuid
+      where user_id = nullif(current_setting('app.current_user_id', true), '')::uuid
     )
   );
 
@@ -42,7 +42,7 @@ alter table public.user_entity enable row level security;
 create policy "user_entity_self"
   on public.user_entity
   for select
-  using (user_id = current_setting('app.current_user_id', true)::uuid);
+  using (user_id = nullif(current_setting('app.current_user_id', true), '')::uuid);
 
 create policy "user_entity_admin_writes"
   on public.user_entity
@@ -50,7 +50,7 @@ create policy "user_entity_admin_writes"
   with check (
     exists (
       select 1 from public.user_entity me
-      where me.user_id = current_setting('app.current_user_id', true)::uuid
+      where me.user_id = nullif(current_setting('app.current_user_id', true), '')::uuid
         and me.entity_id = user_entity.entity_id
         and me.role = 'admin'
     )
@@ -66,7 +66,7 @@ create policy "documents_entity_isolation"
   using (
     entity_id in (
       select entity_id from public.user_entity
-      where user_id = current_setting('app.current_user_id', true)::uuid
+      where user_id = nullif(current_setting('app.current_user_id', true), '')::uuid
     )
   );
 
@@ -76,7 +76,7 @@ create policy "documents_admin_writes"
   with check (
     exists (
       select 1 from public.user_entity
-      where user_id = current_setting('app.current_user_id', true)::uuid
+      where user_id = nullif(current_setting('app.current_user_id', true), '')::uuid
         and entity_id = documents.entity_id
         and role = 'admin'
     )
@@ -88,7 +88,7 @@ create policy "documents_admin_updates"
   using (
     exists (
       select 1 from public.user_entity
-      where user_id = current_setting('app.current_user_id', true)::uuid
+      where user_id = nullif(current_setting('app.current_user_id', true), '')::uuid
         and entity_id = documents.entity_id
         and role = 'admin'
     )
@@ -104,7 +104,7 @@ create policy "transactions_entity_isolation"
   using (
     entity_id in (
       select entity_id from public.user_entity
-      where user_id = current_setting('app.current_user_id', true)::uuid
+      where user_id = nullif(current_setting('app.current_user_id', true), '')::uuid
     )
   );
 
@@ -114,7 +114,7 @@ create policy "transactions_admin_writes"
   with check (
     exists (
       select 1 from public.user_entity
-      where user_id = current_setting('app.current_user_id', true)::uuid
+      where user_id = nullif(current_setting('app.current_user_id', true), '')::uuid
         and entity_id = transactions.entity_id
         and role = 'admin'
     )
@@ -126,7 +126,7 @@ create policy "transactions_admin_updates"
   using (
     exists (
       select 1 from public.user_entity
-      where user_id = current_setting('app.current_user_id', true)::uuid
+      where user_id = nullif(current_setting('app.current_user_id', true), '')::uuid
         and entity_id = transactions.entity_id
         and role = 'admin'
     )
@@ -142,7 +142,7 @@ create policy "assets_entity_isolation"
   using (
     entity_id in (
       select entity_id from public.user_entity
-      where user_id = current_setting('app.current_user_id', true)::uuid
+      where user_id = nullif(current_setting('app.current_user_id', true), '')::uuid
     )
   );
 
@@ -152,7 +152,7 @@ create policy "assets_admin_writes"
   with check (
     exists (
       select 1 from public.user_entity
-      where user_id = current_setting('app.current_user_id', true)::uuid
+      where user_id = nullif(current_setting('app.current_user_id', true), '')::uuid
         and entity_id = assets.entity_id
         and role = 'admin'
     )
@@ -164,7 +164,7 @@ create policy "assets_admin_updates"
   using (
     exists (
       select 1 from public.user_entity
-      where user_id = current_setting('app.current_user_id', true)::uuid
+      where user_id = nullif(current_setting('app.current_user_id', true), '')::uuid
         and entity_id = assets.entity_id
         and role = 'admin'
     )
@@ -180,7 +180,7 @@ create policy "obligations_entity_isolation"
   using (
     entity_id in (
       select entity_id from public.user_entity
-      where user_id = current_setting('app.current_user_id', true)::uuid
+      where user_id = nullif(current_setting('app.current_user_id', true), '')::uuid
     )
   );
 
@@ -190,7 +190,7 @@ create policy "obligations_admin_writes"
   with check (
     exists (
       select 1 from public.user_entity
-      where user_id = current_setting('app.current_user_id', true)::uuid
+      where user_id = nullif(current_setting('app.current_user_id', true), '')::uuid
         and entity_id = obligations.entity_id
         and role = 'admin'
     )
@@ -202,7 +202,7 @@ create policy "obligations_admin_updates"
   using (
     exists (
       select 1 from public.user_entity
-      where user_id = current_setting('app.current_user_id', true)::uuid
+      where user_id = nullif(current_setting('app.current_user_id', true), '')::uuid
         and entity_id = obligations.entity_id
         and role = 'admin'
     )
