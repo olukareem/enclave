@@ -61,12 +61,13 @@ export default function RlsDemoPage() {
         body: JSON.stringify({
           table: "documents",
           row: {
-            entity_id: "e-torres-ventures",
+            // Real deterministic UUIDs from 0003_seed.sql / 0004_demo_users.sql
+            entity_id: "a0000000-0000-4000-8000-000000000005", // Torres Ventures
             title: "RLS write test — should be rejected",
             file_type: "pdf",
             file_size: 1024,
             storage_path: "/rls-test.pdf",
-            uploaded_by: MIKE_ID,
+            uploaded_by: "b0000000-0000-4000-8000-000000000002", // Mike Torres
           },
         }),
       });
