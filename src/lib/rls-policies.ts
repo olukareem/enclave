@@ -1,6 +1,6 @@
 // Three representations of the same access rule, deliberately co-located.
 //
-//   1. The SQL policy text we'd ship to Supabase.
+//   1. The actual Postgres policy SQL — same as in db/migrations/0002_rls.sql.
 //   2. A plain-English description ("what this policy means").
 //   3. A JS predicate function used by lib/mock-supabase.ts.
 //
@@ -12,7 +12,7 @@ import type { Row, TableName, UUID } from "./types";
 import { userEntity } from "./mock-data";
 
 // Returns the set of entity_ids the given user can access.
-// SQL equivalent:  SELECT entity_id FROM user_entity WHERE user_id = auth.uid();
+// SQL equivalent:  SELECT entity_id FROM user_entity WHERE user_id = current_setting('app.current_user_id', true)::uuid;
 export function getAccessibleEntityIds(userId: UUID | null): Set<UUID> {
   if (!userId) return new Set();
   return new Set(
@@ -22,7 +22,7 @@ export function getAccessibleEntityIds(userId: UUID | null): Set<UUID> {
 
 // Returns the role for (user, entity), or null if no membership exists.
 // SQL equivalent:  SELECT role FROM user_entity
-//                  WHERE user_id = auth.uid() AND entity_id = $entityId;
+//                  WHERE user_id = current_setting('app.current_user_id', true)::uuid AND entity_id = $entityId;
 export function getRole(userId: UUID | null, entityId: UUID): "admin" | "viewer" | "advisor" | null {
   if (!userId) return null;
   const ue = userEntity.find(
@@ -82,10 +82,10 @@ export const policies: Record<TableName, PolicyDoc> = {
   users: {
     table: "users",
     english:
-      "Users can SELECT only their own row. Identified by auth.uid() matching the row's id column.",
+      "Users can SELECT only their own row. The session variable app.current_user_id (set by the API before each query) must match the row's id column.",
     selectSQL: `CREATE POLICY "users_self" ON users
   FOR SELECT
-  USING (id = auth.uid());`,
+  USING (id = current_setting('app.current_user_id', true)::uuid);`,
     jsImpl: "applyRLS('users', rows, userId)  →  rows.filter(r => r.id === userId)",
   },
   entities: {
@@ -95,7 +95,7 @@ export const policies: Record<TableName, PolicyDoc> = {
     selectSQL: `CREATE POLICY "entities_member_visible" ON entities
   FOR SELECT
   USING (
-    id IN (SELECT entity_id FROM user_entity WHERE user_id = auth.uid())
+    id IN (SELECT entity_id FROM user_entity WHERE user_id = current_setting('app.current_user_id', true)::uuid)
   );`,
     jsImpl: "applyRLS('entities', rows, userId)  →  rows.filter(r => accessible.has(r.id))",
   },
@@ -105,13 +105,13 @@ export const policies: Record<TableName, PolicyDoc> = {
       "Users can SELECT only their own membership rows. Inserts/updates are restricted to admins of the target entity.",
     selectSQL: `CREATE POLICY "user_entity_self" ON user_entity
   FOR SELECT
-  USING (user_id = auth.uid());`,
+  USING (user_id = current_setting('app.current_user_id', true)::uuid);`,
     insertSQL: `CREATE POLICY "user_entity_admin_writes" ON user_entity
   FOR INSERT
   WITH CHECK (
     EXISTS (
       SELECT 1 FROM user_entity me
-      WHERE me.user_id = auth.uid()
+      WHERE me.user_id = current_setting('app.current_user_id', true)::uuid
         AND me.entity_id = user_entity.entity_id
         AND me.role = 'admin'
     )
@@ -127,7 +127,7 @@ export const policies: Record<TableName, PolicyDoc> = {
   USING (
     entity_id IN (
       SELECT entity_id FROM user_entity
-      WHERE user_id = auth.uid()
+      WHERE user_id = current_setting('app.current_user_id', true)::uuid
     )
   );`,
     insertSQL: `CREATE POLICY "admin_writes" ON documents
@@ -135,7 +135,7 @@ export const policies: Record<TableName, PolicyDoc> = {
   WITH CHECK (
     EXISTS (
       SELECT 1 FROM user_entity
-      WHERE user_id = auth.uid()
+      WHERE user_id = current_setting('app.current_user_id', true)::uuid
         AND entity_id = documents.entity_id
         AND role = 'admin'
     )
@@ -151,7 +151,7 @@ export const policies: Record<TableName, PolicyDoc> = {
   USING (
     entity_id IN (
       SELECT entity_id FROM user_entity
-      WHERE user_id = auth.uid()
+      WHERE user_id = current_setting('app.current_user_id', true)::uuid
     )
   );`,
     insertSQL: `CREATE POLICY "admin_writes" ON transactions
@@ -159,7 +159,7 @@ export const policies: Record<TableName, PolicyDoc> = {
   WITH CHECK (
     EXISTS (
       SELECT 1 FROM user_entity
-      WHERE user_id = auth.uid()
+      WHERE user_id = current_setting('app.current_user_id', true)::uuid
         AND entity_id = transactions.entity_id
         AND role = 'admin'
     )
@@ -175,7 +175,7 @@ export const policies: Record<TableName, PolicyDoc> = {
   USING (
     entity_id IN (
       SELECT entity_id FROM user_entity
-      WHERE user_id = auth.uid()
+      WHERE user_id = current_setting('app.current_user_id', true)::uuid
     )
   );`,
     insertSQL: `CREATE POLICY "admin_writes" ON assets
@@ -183,7 +183,7 @@ export const policies: Record<TableName, PolicyDoc> = {
   WITH CHECK (
     EXISTS (
       SELECT 1 FROM user_entity
-      WHERE user_id = auth.uid()
+      WHERE user_id = current_setting('app.current_user_id', true)::uuid
         AND entity_id = assets.entity_id
         AND role = 'admin'
     )
@@ -199,7 +199,7 @@ export const policies: Record<TableName, PolicyDoc> = {
   USING (
     entity_id IN (
       SELECT entity_id FROM user_entity
-      WHERE user_id = auth.uid()
+      WHERE user_id = current_setting('app.current_user_id', true)::uuid
     )
   );`,
     insertSQL: `CREATE POLICY "admin_writes" ON obligations
@@ -207,7 +207,7 @@ export const policies: Record<TableName, PolicyDoc> = {
   WITH CHECK (
     EXISTS (
       SELECT 1 FROM user_entity
-      WHERE user_id = auth.uid()
+      WHERE user_id = current_setting('app.current_user_id', true)::uuid
         AND entity_id = obligations.entity_id
         AND role = 'admin'
     )

@@ -36,7 +36,7 @@ export const TABLES: TableMeta[] = [
   {
     name: "users",
     label: "users",
-    description: "From Supabase Auth.",
+    description: "Email + bcrypt hash. Authenticated via Auth.js v5.",
     x: 60,
     y: 30,
     width: TABLE_WIDTH,
