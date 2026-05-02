@@ -9,14 +9,41 @@
 -- when they have a `user_entity` membership for that entity. Writes
 -- (INSERT/UPDATE/DELETE) further require the membership role to be 'admin'.
 
+-- ── SECURITY DEFINER helper ──────────────────────────────────────────────
+-- Returns the entity IDs the current session user belongs to, bypassing
+-- user_entity RLS. Required because policies that recurse into user_entity
+-- (e.g. "show me users who share an entity with me") would otherwise hit
+-- their own RLS predicate and return nothing.
+-- Safe to expose: a caller can already see their own user_entity rows via
+-- the user_entity_co_members policy below, so this function gives nothing extra.
+
+create or replace function public.current_user_entity_ids()
+returns setof uuid
+language sql
+security definer
+stable
+set search_path = public
+as $$
+  select entity_id from user_entity
+  where user_id = nullif(current_setting('app.current_user_id', true), '')::uuid
+$$;
+
 -- ── users ────────────────────────────────────────────────────────────────
 
 alter table public.users enable row level security;
 
-create policy "users_self"
+-- Users can see their own row plus other users who share at least one entity.
+-- This lets the UI render names on rows like "uploaded_by", "assigned_to".
+create policy "users_co_members"
   on public.users
   for select
-  using (id = nullif(current_setting('app.current_user_id', true), '')::uuid);
+  using (
+    id = nullif(current_setting('app.current_user_id', true), '')::uuid
+    or id in (
+      select user_id from public.user_entity
+      where entity_id in (select public.current_user_entity_ids())
+    )
+  );
 
 -- ── entities ─────────────────────────────────────────────────────────────
 
@@ -25,12 +52,7 @@ alter table public.entities enable row level security;
 create policy "entities_member_visible"
   on public.entities
   for select
-  using (
-    id in (
-      select entity_id from public.user_entity
-      where user_id = nullif(current_setting('app.current_user_id', true), '')::uuid
-    )
-  );
+  using (id in (select public.current_user_entity_ids()));
 
 -- Entity creation is service-role only in this demo (run via SQL editor or
 -- onboarding flow). End users cannot insert entities directly.
@@ -39,10 +61,16 @@ create policy "entities_member_visible"
 
 alter table public.user_entity enable row level security;
 
-create policy "user_entity_self"
+-- Members of an entity can see other memberships in that entity. Required
+-- so admins can audit who has access, and so the users_co_members policy
+-- has the data it needs to evaluate.
+create policy "user_entity_co_members"
   on public.user_entity
   for select
-  using (user_id = nullif(current_setting('app.current_user_id', true), '')::uuid);
+  using (
+    user_id = nullif(current_setting('app.current_user_id', true), '')::uuid
+    or entity_id in (select public.current_user_entity_ids())
+  );
 
 create policy "user_entity_admin_writes"
   on public.user_entity
