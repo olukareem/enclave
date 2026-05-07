@@ -101,7 +101,7 @@ In the Vercel dashboard: **Add New → Project**, import the repo. Vercel auto-d
 
 - `DATABASE_URL`
 - `AUTH_SECRET`
-- `NEXTAUTH_URL` (set to your Vercel deployment URL, e.g. `https://enclave-portal.vercel.app`)
+- `NEXTAUTH_URL` (set to your Vercel deployment URL, e.g. `https://tryenclave.vercel.app`)
 - `BLOB_READ_WRITE_TOKEN`
 
 Click **Deploy**. After about 90 seconds you get a live URL.

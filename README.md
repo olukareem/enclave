@@ -2,7 +2,7 @@
 
 Postgres RLS-enforced multi-tenancy. Built on Next.js 14, Neon, Auth.js, and Vercel Blob.
 
-Live demo: **[enclave-portal.vercel.app](https://enclave-portal.vercel.app)**
+Live demo: **[tryenclave.vercel.app](https://tryenclave.vercel.app)**
 
 ---
 

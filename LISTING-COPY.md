@@ -20,7 +20,7 @@ Production-ready portal infrastructure with database-enforced multi-tenancy. Thr
 
 Most multi-tenant starters filter rows in the application layer. A developer writes a WHERE clause, wires it to the session, and hopes nobody forgets it. Enclave enforces isolation at the database level with Postgres Row-Level Security — if someone forgets a WHERE clause, Postgres still returns nothing.
 
-The differentiator is provable. There is a live demo at https://enclave-rls.vercel.app with three seeded accounts at different permission levels. Log in as Mike (viewer), hit the Documents page, and you see only his entity's data. Log in as Sarah (admin), and you see two entities. Visit /dashboard/rls-demo and click "Try a write as Mike" — the button calls the real /api/data endpoint, Postgres evaluates the WITH CHECK policy, and returns a genuine 42501 error. You are not clicking a mock. You are watching the database say no.
+The differentiator is provable. There is a live demo at https://tryenclave.vercel.app with three seeded accounts at different permission levels. Log in as Mike (viewer), hit the Documents page, and you see only his entity's data. Log in as Sarah (admin), and you see two entities. Visit /dashboard/rls-demo and click "Try a write as Mike" — the button calls the real /api/data endpoint, Postgres evaluates the WITH CHECK policy, and returns a genuine 42501 error. You are not clicking a mock. You are watching the database say no.
 
 **What's in the repo**
 
@@ -33,7 +33,7 @@ Next.js 14 (App Router) — Neon serverless Postgres — Auth.js v5 — Vercel B
 Stripe or any payment integration. Email notifications. Real-time subscriptions. A custom domain. The buyer needs a Neon account (free tier covers this), a Vercel account (free tier covers this), and a Vercel Blob store (free tier covers this). Estimated setup time following the included DEPLOY.md is 30 minutes.
 
 **Demo**
-https://enclave-rls.vercel.app
+https://tryenclave.vercel.app
 
 **GitHub**
 https://github.com/olukareem/enclave
@@ -79,7 +79,7 @@ Domain name (buyer registers their own). Cloud accounts (buyer uses their own Ne
 - TypeScript throughout
 
 **Live demo**
-https://enclave-rls.vercel.app
+https://tryenclave.vercel.app
 
 **Source**
 https://github.com/olukareem/enclave
@@ -97,7 +97,7 @@ Built this as a portfolio piece and it ended up being more complete than I expec
 
 It's a client portal where each user can belong to multiple "entities" (think client accounts, legal matters, fund trusts, whatever) with a role per relationship. The access control is enforced by Postgres Row-Level Security, not application-layer WHERE clauses. The difference matters: a forgotten WHERE clause leaks data; a forgotten RLS policy returns empty.
 
-There's a demo at https://enclave-rls.vercel.app. Log in as Mike (viewer) and you see one entity. Log in as Sarah (admin) and you see two. Visit the RLS demo page and click the write-violation button — it hits the real database and returns the actual Postgres 42501 error. Worth clicking just to see it.
+There's a demo at https://tryenclave.vercel.app. Log in as Mike (viewer) and you see one entity. Log in as Sarah (admin) and you see two. Visit the RLS demo page and click the write-violation button — it hits the real database and returns the actual Postgres 42501 error. Worth clicking just to see it.
 
 Stack: Next.js 14 App Router, Neon Postgres, Auth.js v5, Vercel Blob, shadcn/ui.
 
@@ -115,13 +115,13 @@ If you want to go direct — post this in relevant #jobs, #tools, or #marketplac
 
 Building a portal product and don't want to wire multi-tenancy from scratch? I'm selling a Next.js 14 starter with working Postgres RLS, Auth.js v5, and Vercel Blob document storage. The RLS isolation is actually provable — there's a demo page where you can watch Postgres reject unauthorized writes in real time.
 
-$2,500. Full source + deploy guide. https://enclave-rls.vercel.app | https://github.com/olukareem/enclave
+$2,500. Full source + deploy guide. https://tryenclave.vercel.app | https://github.com/olukareem/enclave
 
 ---
 
 ## Before pasting these anywhere
 
-- [x] Live demo URL is `https://enclave-rls.vercel.app` (filled in throughout)
+- [x] Live demo URL is `https://tryenclave.vercel.app` (filled in throughout)
 - [x] GitHub repo is `https://github.com/olukareem/enclave` (filled in throughout)
 - [ ] Replace `[SIDEPROJECTORS_URL]` in the Reddit post once the SideProjectors listing is live
 - [x] Smoke test passed against the live URL
